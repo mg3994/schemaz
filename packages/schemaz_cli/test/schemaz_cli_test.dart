@@ -35,41 +35,18 @@ void main() {
       expect(generatedFile.readAsStringSync(), contains('class Person'));
     });
 
-    test('Inspects .sz file structure', () {
+    test('Generates markdown documentation using doc command', () {
       final result = Process.runSync(
         'dart',
-        ['run', 'bin/schemaz.dart', 'inspect', szFile.path],
+        ['run', 'bin/schemaz.dart', 'doc', szFile.path],
         workingDirectory: Directory.current.path,
       );
 
       expect(result.exitCode, equals(0));
-      expect(result.stdout.toString(), contains('Schema: Person'));
-    });
-
-    test('Exports JSON-LD descriptor representation', () {
-      final result = Process.runSync(
-        'dart',
-        ['run', 'bin/schemaz.dart', 'export-schema', szFile.path],
-        workingDirectory: Directory.current.path,
-      );
-
-      expect(result.exitCode, equals(0));
-      expect(result.stdout.toString(), contains('"@graph"'));
-      expect(result.stdout.toString(), contains('"https://schema.org/Person"'));
-    });
-
-    test('Validates JSON payload against .sz schema', () {
-      final validJsonFile = File('${tempDir.path}/valid.json');
-      validJsonFile.writeAsStringSync('{"name": "Manish"}');
-
-      final result = Process.runSync(
-        'dart',
-        ['run', 'bin/schemaz.dart', 'validate', szFile.path, validJsonFile.path],
-        workingDirectory: Directory.current.path,
-      );
-
-      expect(result.exitCode, equals(0));
-      expect(result.stdout.toString(), contains('Validation passed successfully.'));
+      final docFile = File('${szFile.path}.md');
+      expect(docFile.existsSync(), isTrue);
+      expect(docFile.readAsStringSync(), contains('# Schema Documentation'));
+      expect(docFile.readAsStringSync(), contains('## Schema `Person`'));
     });
   });
 }

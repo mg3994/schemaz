@@ -74,8 +74,7 @@ class Parser {
       final propNameToken =
           _consume(TokenType.identifier, 'Expected property name');
       _consume(TokenType.colon, 'Expected ":" after property name');
-      final typeToken =
-          _consume(TokenType.identifier, 'Expected property type');
+      final typeName = _parseTypeAnnotation();
 
       bool isNullable = false;
       if (_match([TokenType.question])) {
@@ -89,7 +88,7 @@ class Parser {
       properties.add(PropertyDefinition(
         id: propNameToken.lexeme,
         name: propNameToken.lexeme,
-        ranges: [typeToken.lexeme],
+        ranges: [typeName],
         isNullable: isNullable,
       ));
     }
@@ -112,11 +111,10 @@ class Parser {
     final parameters = <String, String>{};
     if (!_check(TokenType.closeParen)) {
       do {
-        final typeToken =
-            _consume(TokenType.identifier, 'Expected parameter type');
+        final typeName = _parseTypeAnnotation();
         final paramNameToken =
             _consume(TokenType.identifier, 'Expected parameter name');
-        parameters[paramNameToken.lexeme] = typeToken.lexeme;
+        parameters[paramNameToken.lexeme] = typeName;
       } while (_match([TokenType.comma]));
     }
 
@@ -124,9 +122,7 @@ class Parser {
 
     String? returnType;
     if (_match([TokenType.arrow])) {
-      final returnTypeToken =
-          _consume(TokenType.identifier, 'Expected return type');
-      returnType = returnTypeToken.lexeme;
+      returnType = _parseTypeAnnotation();
     }
 
     _consume(TokenType.openBrace, 'Expected "{" before function body');
@@ -142,6 +138,25 @@ class Parser {
       returnType: returnType,
       parameters: parameters,
     );
+  }
+
+  String _parseTypeAnnotation() {
+    final baseTypeToken =
+        _consume(TokenType.identifier, 'Expected type identifier');
+    final buffer = StringBuffer(baseTypeToken.lexeme);
+
+    if (_match([TokenType.openAngle])) {
+      buffer.write('<');
+      buffer.write(_parseTypeAnnotation());
+      while (_match([TokenType.comma])) {
+        buffer.write(', ');
+        buffer.write(_parseTypeAnnotation());
+      }
+      _consume(TokenType.closeAngle, 'Expected ">" after generic arguments');
+      buffer.write('>');
+    }
+
+    return buffer.toString();
   }
 
   bool _check(TokenType type) {

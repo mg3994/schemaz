@@ -14,6 +14,7 @@ void main(List<String> args) {
     print('  inspect <file.sz>               Inspects schema structure and properties');
     print('  export-schema <file.sz>          Exports JSON-LD descriptor representation');
     print('  validate <file.sz> <data.json>  Validates JSON payload against schema');
+    print('  doc <file.sz>                   Generates Markdown documentation for schema');
     return;
   }
 
@@ -52,6 +53,42 @@ void main(List<String> args) {
         }
       }
     }
+  } else if (command == 'doc' && args.length > 1) {
+    final filePath = args[1];
+    final file = File(filePath);
+    if (!file.existsSync()) {
+      print('Error: File $filePath not found.');
+      exit(1);
+    }
+
+    final source = file.readAsStringSync();
+    final declarations = _parseSource(source);
+    final buffer = StringBuffer();
+
+    buffer.writeln('# Schema Documentation');
+    buffer.writeln();
+
+    for (final decl in declarations) {
+      if (decl is SchemaDeclaration) {
+        buffer.writeln('## Schema `${decl.name}`');
+        buffer.writeln('- **URI**: `${decl.schemaUri ?? "N/A"}`');
+        if (decl.supertype != null) {
+          buffer.writeln('- **Extends**: `${decl.supertype}`');
+        }
+        buffer.writeln();
+        buffer.writeln('### Properties');
+        buffer.writeln('| Property | Type | Nullable |');
+        buffer.writeln('| --- | --- | --- |');
+        for (final prop in decl.properties) {
+          buffer.writeln('| `${prop.name}` | `${prop.ranges.join(", ")}` | `${prop.isNullable}` |');
+        }
+        buffer.writeln();
+      }
+    }
+
+    final docPath = '$filePath.md';
+    File(docPath).writeAsStringSync(buffer.toString());
+    print('Generated documentation -> $docPath');
   } else if (command == 'export-schema' && args.length > 1) {
     final filePath = args[1];
     final file = File(filePath);
