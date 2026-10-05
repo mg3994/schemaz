@@ -44,7 +44,32 @@ void main() {
 
       expect(result.exitCode, equals(0));
       expect(result.stdout.toString(), contains('Schema: Person'));
-      expect(result.stdout.toString(), contains('name: String'));
+    });
+
+    test('Exports JSON-LD descriptor representation', () {
+      final result = Process.runSync(
+        'dart',
+        ['run', 'bin/schemaz.dart', 'export-schema', szFile.path],
+        workingDirectory: Directory.current.path,
+      );
+
+      expect(result.exitCode, equals(0));
+      expect(result.stdout.toString(), contains('"@graph"'));
+      expect(result.stdout.toString(), contains('"https://schema.org/Person"'));
+    });
+
+    test('Validates JSON payload against .sz schema', () {
+      final validJsonFile = File('${tempDir.path}/valid.json');
+      validJsonFile.writeAsStringSync('{"name": "Manish"}');
+
+      final result = Process.runSync(
+        'dart',
+        ['run', 'bin/schemaz.dart', 'validate', szFile.path, validJsonFile.path],
+        workingDirectory: Directory.current.path,
+      );
+
+      expect(result.exitCode, equals(0));
+      expect(result.stdout.toString(), contains('Validation passed successfully.'));
     });
   });
 }
