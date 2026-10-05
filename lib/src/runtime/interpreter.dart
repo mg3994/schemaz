@@ -131,6 +131,18 @@ class SchemazInterpreter {
       return node.value;
     }
 
+    if (node is ListLiteralNode) {
+      return node.elements.map((e) => evaluate(e, env)).toList();
+    }
+
+    if (node is MapLiteralNode) {
+      final map = <String, dynamic>{};
+      node.entries.forEach((k, v) {
+        map[k] = evaluate(v, env);
+      });
+      return map;
+    }
+
     if (node is IdentifierNode) {
       return env.get(node.name);
     }
@@ -190,6 +202,10 @@ class SchemazInterpreter {
       if (node.methodName == 'toString') return target.toString();
       if (target is List) {
         if (node.methodName == 'length') return target.length;
+        if (node.methodName == 'contains' && args.isNotEmpty) return target.contains(args.first);
+        if (node.methodName == 'sum') {
+          return target.fold<num>(0, (prev, element) => prev + (element is num ? element : 0));
+        }
       }
       throw FormatException('Unknown method ${node.methodName}');
     }

@@ -32,6 +32,9 @@ class Parser {
       final expr = _isAtEnd() || _check(TokenType.rightBrace) ? null : _parseExpression();
       return ReturnNode(expr);
     }
+    if (_match([TokenType.kwIf])) {
+      return _parseIf();
+    }
     if (_check(TokenType.identifier) && _peek(1).type == TokenType.identifier) {
       // Instance declaration e.g.: person Person { ... }
       return _parseInstanceDecl();
@@ -39,6 +42,31 @@ class Parser {
 
     // Default to expression statement
     return _parseExpression();
+  }
+
+  ASTNode _parseIf() {
+    _consume(TokenType.leftParen, 'Expected "(" after if.');
+    final condition = _parseExpression();
+    _consume(TokenType.rightParen, 'Expected ")" after if condition.');
+
+    _consume(TokenType.leftBrace, 'Expected "{" before then block.');
+    final thenBody = <ASTNode>[];
+    while (!_check(TokenType.rightBrace) && !_isAtEnd()) {
+      thenBody.add(_parseStatement());
+    }
+    _consume(TokenType.rightBrace, 'Expected "}" after then block.');
+
+    List<ASTNode>? elseBody;
+    if (_match([TokenType.kwElse])) {
+      _consume(TokenType.leftBrace, 'Expected "{" before else block.');
+      elseBody = <ASTNode>[];
+      while (!_check(TokenType.rightBrace) && !_isAtEnd()) {
+        elseBody.add(_parseStatement());
+      }
+      _consume(TokenType.rightBrace, 'Expected "}" after else block.');
+    }
+
+    return FunctionDeclNode('', [], null, thenBody); // placeholder or expression wrapper
   }
 
   ASTNode _parseImport() {
@@ -51,7 +79,7 @@ class Parser {
   }
 
   ASTNode _parseSchemaDecl() {
-    final nameToken = _consume(TokenType.identifier, 'Expected schema name.');
+    final nameToken = _consume(TokenType.identifier, 'Expected schema name.').text;
     String? parentName;
     if (_match([TokenType.kwExtends])) {
       parentName = _consume(TokenType.identifier, 'Expected parent schema name.').text;
@@ -68,7 +96,7 @@ class Parser {
     }
 
     _consume(TokenType.rightBrace, 'Expected "}" after schema body.');
-    return SchemaDeclNode(nameToken.text, properties, parentName: parentName);
+    return SchemaDeclNode(nameToken, properties, parentName: parentName);
   }
 
   ASTNode _parseInstanceDecl() {
@@ -230,6 +258,17 @@ class Parser {
 
     if (_match([TokenType.identifier])) {
       return IdentifierNode(_previous().text);
+    }
+
+    if (_match([TokenType.leftBracket])) {
+      final elements = <ExpressionNode>[];
+      if (!_check(TokenType.rightBracket)) {
+        do {
+          elements.add(_parseExpression());
+        } while (_match([TokenType.comma]));
+      }
+      _consume(TokenType.rightBracket, 'Expected "]" after list items.');
+      return ListLiteralNode(elements);
     }
 
     if (_match([TokenType.leftParen])) {

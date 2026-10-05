@@ -4,6 +4,8 @@ export 'src/core/node.dart';
 export 'src/core/registry.dart';
 export 'src/schema_org/importer.dart';
 export 'src/schema_org/json_ld_codec.dart';
+export 'src/schema_org/validator.dart';
+export 'src/schema_org/standard_vocabularies.dart';
 export 'src/parser/lexer.dart';
 export 'src/parser/ast.dart';
 export 'src/parser/parser.dart';
