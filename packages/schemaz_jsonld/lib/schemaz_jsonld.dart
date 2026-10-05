@@ -1,0 +1,4 @@
+/// JSON-LD parser and Schema.org loader for Schemaz.
+library schemaz_jsonld;
+
+export 'src/jsonld_parser.dart';

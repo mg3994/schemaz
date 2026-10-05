@@ -10,6 +10,8 @@ dependencies:
     path: ../schemaz_core
   schemaz_model:
     path: ../schemaz_model
+  schemaz_lexer:
+    path: ../schemaz_lexer
 
 dev_dependencies:
   test: ^1.24.0

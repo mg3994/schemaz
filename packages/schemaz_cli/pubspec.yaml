@@ -8,6 +8,12 @@ environment:
 dependencies:
   schemaz_core:
     path: ../schemaz_core
+  schemaz_lexer:
+    path: ../schemaz_lexer
+  schemaz_parser:
+    path: ../schemaz_parser
+  schemaz_codegen:
+    path: ../schemaz_codegen
 
 dev_dependencies:
   test: ^1.24.0
