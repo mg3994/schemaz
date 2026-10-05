@@ -61,7 +61,12 @@ class DartGenerator {
     buffer.writeln('    "@context": "https://schema.org",');
     buffer.writeln('    "@type": "${decl.name}",');
     for (final prop in decl.properties) {
-      buffer.writeln('    "${prop.name}": ${prop.name},');
+      final isLocal = prop.ranges.firstOrNull == 'LocalizedString';
+      if (isLocal) {
+        buffer.writeln('    "${prop.name}": ${prop.name}?.toJsonLd(),');
+      } else {
+        buffer.writeln('    "${prop.name}": ${prop.name},');
+      }
     }
     buffer.writeln('  };');
     buffer.writeln();
@@ -71,8 +76,16 @@ class DartGenerator {
     for (final prop in decl.properties) {
       final type = prop.ranges.isNotEmpty ? prop.ranges.first : 'dynamic';
       final nullableStr = prop.isNullable ? '?' : '';
-      final castExpr = type != 'dynamic' ? ' as $type$nullableStr' : '';
-      buffer.writeln('    ${prop.name}: json["${prop.name}"]$castExpr,');
+      if (type == 'LocalizedString') {
+        if (prop.isNullable) {
+          buffer.writeln('    ${prop.name}: json["${prop.name}"] != null ? LocalizedString(Map<String, String>.from(json["${prop.name}"])) : null,');
+        } else {
+          buffer.writeln('    ${prop.name}: LocalizedString(Map<String, String>.from(json["${prop.name}"] ?? {})),');
+        }
+      } else {
+        final castExpr = type != 'dynamic' ? ' as $type$nullableStr' : '';
+        buffer.writeln('    ${prop.name}: json["${prop.name}"]$castExpr,');
+      }
     }
     buffer.writeln('  );');
 

@@ -36,9 +36,23 @@ class SchemaGraph {
     );
   }
 
+  /// Direct and transitive subtype check
+  bool isSubtypeOf(String subCandidate, String superType) {
+    if (subCandidate == superType) return true;
+    final node = getType(subCandidate);
+    if (node == null) return false;
+
+    for (final directSuper in node.supertypes) {
+      if (directSuper == superType || isSubtypeOf(directSuper, superType)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   List<SchemaType> findSubtypes(String parentNameOrId) {
     return _nodes.values.where((node) {
-      return node.supertypes.contains(parentNameOrId);
+      return isSubtypeOf(node.name, parentNameOrId) || isSubtypeOf(node.id, parentNameOrId);
     }).toSet().toList();
   }
 }

@@ -1,0 +1,7 @@
+import 'schema:org';
+
+@schema('https://schema.org/Person')
+schema LocalizedPerson {
+    name: LocalizedString;
+    description: LocalizedString?;
+}
