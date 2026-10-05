@@ -1,0 +1,11 @@
+import 'schema:org';
+
+@schema('https://schema.org/Product')
+schema Product {
+    name: String;
+    price: double;
+}
+
+fn calculateTax(Product product) -> double {
+    return product.price * 0.18;
+}

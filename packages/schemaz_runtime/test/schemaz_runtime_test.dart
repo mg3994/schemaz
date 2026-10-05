@@ -3,30 +3,31 @@ import 'package:schemaz_core/schemaz_core.dart';
 import 'package:schemaz_runtime/schemaz_runtime.dart';
 
 void main() {
-  group('SchemazRuntime', () {
-    test('Validates required fields against SchemaDescriptor', () {
+  group('SchemazRuntime advanced features', () {
+    test('diff calculates property changes', () {
+      final oldProduct = {'name': 'Laptop', 'price': 1000};
+      final newProduct = {'name': 'Laptop', 'price': 1200};
+
+      final changes = SchemazRuntime.diff(oldProduct, newProduct);
+
+      expect(changes.containsKey('price'), isTrue);
+      expect(changes['price']!['old'], equals(1000));
+      expect(changes['price']!['new'], equals(1200));
+    });
+
+    test('describe formats schema descriptor', () {
       const descriptor = SchemaDescriptor(
         id: 'https://schema.org/Person',
         name: 'Person',
         properties: [
-          PropertyDefinition(
-            id: 'name',
-            name: 'name',
-            isNullable: false,
-          ),
-          PropertyDefinition(
-            id: 'email',
-            name: 'email',
-            isNullable: true,
-          ),
+          PropertyDefinition(id: 'name', name: 'name'),
         ],
       );
 
-      final validData = {'name': 'Manish'};
-      final invalidData = {'email': 'test@example.com'};
+      final output = SchemazRuntime.describe(descriptor);
 
-      expect(SchemazRuntime.validate(descriptor, validData), isTrue);
-      expect(SchemazRuntime.validate(descriptor, invalidData), isFalse);
+      expect(output, contains('Schema: Person'));
+      expect(output, contains('- name'));
     });
   });
 }

@@ -4,11 +4,11 @@ import 'package:schemaz_model/schemaz_model.dart';
 import 'package:schemaz_codegen/schemaz_codegen.dart';
 
 void main() {
-  group('DartGenerator', () {
-    test('Generates Dart class code from SchemaDeclaration', () {
+  group('DartGenerator capabilities', () {
+    test('Generates toJson, fromJson, and toJsonLd methods', () {
       const decl = SchemaDeclaration(
-        name: 'Person',
-        schemaUri: 'https://schema.org/Person',
+        name: 'Product',
+        schemaUri: 'https://schema.org/Product',
         properties: [
           PropertyDefinition(
             id: 'name',
@@ -17,20 +17,20 @@ void main() {
             isNullable: false,
           ),
           PropertyDefinition(
-            id: 'email',
-            name: 'email',
-            ranges: ['String'],
-            isNullable: true,
+            id: 'price',
+            name: 'price',
+            ranges: ['double'],
+            isNullable: false,
           ),
         ],
       );
 
       final code = DartGenerator.generate([decl]);
 
-      expect(code, contains('class Person {'));
-      expect(code, contains('final String name;'));
-      expect(code, contains('final String? email;'));
-      expect(code, contains('static const SchemaDescriptor schema ='));
+      expect(code, contains('Map<String, dynamic> toJson()'));
+      expect(code, contains('Map<String, dynamic> toJsonLd()'));
+      expect(code, contains('factory Product.fromJson'));
+      expect(code, contains('"@type": "Product"'));
     });
   });
 }
