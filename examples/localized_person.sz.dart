@@ -25,7 +25,7 @@ class LocalizedPerson {
   };
 
   factory LocalizedPerson.fromJson(Map<String, dynamic> json) => LocalizedPerson(
-    name: LocalizedString(Map<String, String>.from(json["name"] ?? {})),
-    description: json["description"] != null ? LocalizedString(Map<String, String>.from(json["description"])) : null,
+    name: LocalizedString.fromJsonLd(json["name"]),
+    description: json["description"] != null ? LocalizedString.fromJsonLd(json["description"]) : null,
   );
 }

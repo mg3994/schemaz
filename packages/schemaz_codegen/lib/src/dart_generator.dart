@@ -78,9 +78,9 @@ class DartGenerator {
       final nullableStr = prop.isNullable ? '?' : '';
       if (type == 'LocalizedString') {
         if (prop.isNullable) {
-          buffer.writeln('    ${prop.name}: json["${prop.name}"] != null ? LocalizedString(Map<String, String>.from(json["${prop.name}"])) : null,');
+          buffer.writeln('    ${prop.name}: json["${prop.name}"] != null ? LocalizedString.fromJsonLd(json["${prop.name}"]) : null,');
         } else {
-          buffer.writeln('    ${prop.name}: LocalizedString(Map<String, String>.from(json["${prop.name}"] ?? {})),');
+          buffer.writeln('    ${prop.name}: LocalizedString.fromJsonLd(json["${prop.name}"]),');
         }
       } else {
         final castExpr = type != 'dynamic' ? ' as $type$nullableStr' : '';

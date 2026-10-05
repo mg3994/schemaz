@@ -18,13 +18,18 @@ void main() {
   );
 
   const localizedPerson = LocalizedPerson(
-    name: LocalizedString({'en': 'Manish Gautam', 'hi': 'मनीष गौतम'}),
+    name: LocalizedString({
+      'en': 'Manish',
+      'hi': 'मनीष',
+      'ml': 'മനീഷ്',
+    }),
   );
 
   print('Person: ${person.name} (${person.email})');
   print('Product: ${product.name} @ \$${product.price}');
   print('Localized Person Name (English): ${localizedPerson.name.getValue("en")}');
   print('Localized Person Name (Hindi): ${localizedPerson.name.getValue("hi")}');
+  print('Localized Person Name (Malayalam): ${localizedPerson.name.getValue("ml")}');
 
   // 2. Call static schema descriptors
   print('\nSchema Descriptor: ${Person.schema.name} (${Person.schema.id})');
