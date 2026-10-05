@@ -1,0 +1,15 @@
+name: schemaz_parser
+description: Parser for Schemaz language
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  schemaz_core:
+    path: ../schemaz_core
+  schemaz_model:
+    path: ../schemaz_model
+
+dev_dependencies:
+  test: ^1.24.0

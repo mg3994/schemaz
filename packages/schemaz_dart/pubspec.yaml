@@ -1,0 +1,13 @@
+name: schemaz_dart
+description: Dart API importer for Schemaz interop
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  schemaz_core:
+    path: ../schemaz_core
+
+dev_dependencies:
+  test: ^1.24.0

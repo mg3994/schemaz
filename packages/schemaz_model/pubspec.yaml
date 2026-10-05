@@ -1,0 +1,14 @@
+name: schemaz_model
+description: Declaration and model primitives for Schemaz
+version: 0.1.0
+sdk: '>=3.0.0 <4.0.0'
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  schemaz_core:
+    path: ../schemaz_core
+
+dev_dependencies:
+  test: ^1.24.0

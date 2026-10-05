@@ -1,0 +1,13 @@
+name: schemaz_runtime
+description: Runtime capabilities and reflection helpers for Schemaz
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  schemaz_core:
+    path: ../schemaz_core
+
+dev_dependencies:
+  test: ^1.24.0
