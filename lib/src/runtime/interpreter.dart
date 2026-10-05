@@ -1,6 +1,7 @@
 import '../core/node.dart';
 import '../core/registry.dart';
 import '../core/schema.dart';
+import '../core/type.dart';
 import '../parser/ast.dart';
 
 class Environment {
@@ -138,6 +139,10 @@ class SchemazInterpreter {
       return val;
     }
 
+    if (node is LocalizedLiteralNode) {
+      return LocalizedText(node.text, node.language);
+    }
+
     if (node is LiteralNode) {
       return node.value;
     }
@@ -163,7 +168,7 @@ class SchemazInterpreter {
       final right = evaluate(node.right, env);
       switch (node.operator) {
         case '+':
-          return (left is String || right is String) ? '$left$right' : left + right;
+          return (left is String || right is String || left is LocalizedText || right is LocalizedText) ? '$left$right' : left + right;
         case '-':
           return left - right;
         case '*':
@@ -194,6 +199,10 @@ class SchemazInterpreter {
       }
       if (target is Map) {
         return target[node.propertyName];
+      }
+      if (target is LocalizedText) {
+        if (node.propertyName == 'text') return target.text;
+        if (node.propertyName == 'language') return target.language;
       }
       throw FormatException('Cannot access property ${node.propertyName} on non-node/map $target');
     }

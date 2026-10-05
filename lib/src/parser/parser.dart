@@ -269,6 +269,11 @@ class Parser {
       return BinaryOpNode(LiteralNode(0), '-', primary);
     }
 
+    if (_match([TokenType.localizedStringLiteral])) {
+      final token = _previous();
+      return LocalizedLiteralNode(token.value.toString(), token.language!);
+    }
+
     if (_match([TokenType.stringLiteral, TokenType.numberLiteral])) {
       return LiteralNode(_previous().value);
     }

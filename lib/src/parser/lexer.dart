@@ -17,6 +17,7 @@ enum TokenType {
   // Literals & Identifiers
   identifier,
   stringLiteral,
+  localizedStringLiteral,
   numberLiteral,
 
   // Symbols
@@ -49,13 +50,14 @@ class Token {
   final TokenType type;
   final String text;
   final Object? value;
+  final String? language;
   final int line;
   final int column;
 
-  Token(this.type, this.text, this.value, this.line, this.column);
+  Token(this.type, this.text, this.value, this.line, this.column, {this.language});
 
   @override
-  String toString() => 'Token($type, "$text", line: $line, col: $column)';
+  String toString() => 'Token($type, "$text", line: $line, col: $column${language != null ? ', lang: $language' : ''})';
 }
 
 class Lexer {
@@ -218,6 +220,19 @@ class Lexer {
     }
     _advanceChar(quote);
     final strVal = sb.toString();
+
+    // Check for @lang tag suffix e.g. "Hello"@en or "Bonjour"@fr
+    if (_position < source.length && source[_position] == '@') {
+      _advanceChar('@');
+      final langSb = StringBuffer();
+      while (_position < source.length && (_isAlphaNumeric(source[_position]) || source[_position] == '-')) {
+        langSb.write(source[_position]);
+        _advanceChar(source[_position]);
+      }
+      final lang = langSb.toString();
+      return Token(TokenType.localizedStringLiteral, '"$strVal"@$lang', strVal, startLine, startCol, language: lang);
+    }
+
     return Token(TokenType.stringLiteral, strVal, strVal, startLine, startCol);
   }
 

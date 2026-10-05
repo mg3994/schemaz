@@ -72,6 +72,12 @@ class TypeCastNode extends ExpressionNode {
   TypeCastNode(this.expression, this.targetTypeName);
 }
 
+class LocalizedLiteralNode extends ExpressionNode {
+  final String text;
+  final String language;
+  LocalizedLiteralNode(this.text, this.language);
+}
+
 class LiteralNode extends ExpressionNode {
   final dynamic value;
   LiteralNode(this.value);

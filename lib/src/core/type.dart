@@ -1,3 +1,30 @@
+/// Represents a localized string value with language/locale tag.
+class LocalizedText {
+  final String text;
+  final String language; // e.g. "en", "fr", "es", "ja", "zh-CN"
+
+  const LocalizedText(this.text, this.language);
+
+  Map<String, dynamic> toJson() => {
+        '@value': text,
+        '@language': language,
+      };
+
+  @override
+  String toString() => '"$text"@$language';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LocalizedText &&
+          runtimeType == other.runtimeType &&
+          text == other.text &&
+          language == other.language;
+
+  @override
+  int get hashCode => text.hashCode ^ language.hashCode;
+}
+
 /// The fundamental type system for Schemaz.
 abstract class SchemazType {
   final String name;
@@ -13,6 +40,7 @@ abstract class SchemazType {
 /// Primitive types supported out of the box in Schemaz.
 class PrimitiveType extends SchemazType {
   static const PrimitiveType text = PrimitiveType._('Text');
+  static const PrimitiveType localizedText = PrimitiveType._('LocalizedText');
   static const PrimitiveType integer = PrimitiveType._('Integer');
   static const PrimitiveType float = PrimitiveType._('Float');
   static const PrimitiveType boolean = PrimitiveType._('Boolean');
@@ -24,6 +52,8 @@ class PrimitiveType extends SchemazType {
   @override
   bool isAssignableTo(SchemazType other) {
     if (other == PrimitiveType.any || this == other) return true;
+    if (this == PrimitiveType.localizedText && other == PrimitiveType.text) return true;
+    if (this == PrimitiveType.text && other == PrimitiveType.localizedText) return true;
     if (this == PrimitiveType.integer && other == PrimitiveType.float) return true;
     return false;
   }

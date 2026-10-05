@@ -2,6 +2,7 @@ import 'dart:convert';
 import '../core/node.dart';
 import '../core/registry.dart';
 import '../core/schema.dart';
+import '../core/type.dart';
 
 /// Helper for serializing Schemaz Nodes to and from standard JSON-LD objects.
 class JsonLdCodec {
@@ -30,12 +31,22 @@ class JsonLdCodec {
     json.forEach((key, value) {
       if (key == '@type' || key == '@id' || key == '@context') return;
 
-      if (value is Map<String, dynamic> && value.containsKey('@type')) {
-        props[key] = decodeNode(value);
+      if (value is Map<String, dynamic>) {
+        if (value.containsKey('@type')) {
+          props[key] = decodeNode(value);
+        } else if (value.containsKey('@value') && value.containsKey('@language')) {
+          props[key] = LocalizedText(value['@value'].toString(), value['@language'].toString());
+        } else {
+          props[key] = value;
+        }
       } else if (value is List) {
         props[key] = value.map((item) {
-          if (item is Map<String, dynamic> && item.containsKey('@type')) {
-            return decodeNode(item);
+          if (item is Map<String, dynamic>) {
+            if (item.containsKey('@type')) {
+              return decodeNode(item);
+            } else if (item.containsKey('@value') && item.containsKey('@language')) {
+              return LocalizedText(item['@value'].toString(), item['@language'].toString());
+            }
           }
           return item;
         }).toList();

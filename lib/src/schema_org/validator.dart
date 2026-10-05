@@ -60,8 +60,14 @@ class SchemaValidator {
   void _validateValueType(String path, SchemazType expectedType, dynamic value, List<ValidationError> errors) {
     if (expectedType == PrimitiveType.any) return;
 
-    if (expectedType == PrimitiveType.text && value is! String) {
-      errors.add(ValidationError(path, 'Expected String, got ${value.runtimeType}'));
+    if (expectedType == PrimitiveType.text) {
+      if (value is! String && value is! LocalizedText) {
+        errors.add(ValidationError(path, 'Expected String or LocalizedText, got ${value.runtimeType}'));
+      }
+    } else if (expectedType == PrimitiveType.localizedText) {
+      if (value is! LocalizedText && value is! String) {
+        errors.add(ValidationError(path, 'Expected LocalizedText or String, got ${value.runtimeType}'));
+      }
     } else if (expectedType == PrimitiveType.integer && value is! int) {
       errors.add(ValidationError(path, 'Expected Integer, got ${value.runtimeType}'));
     } else if (expectedType == PrimitiveType.float && value is! double && value is! int) {
@@ -70,10 +76,14 @@ class SchemaValidator {
       errors.add(ValidationError(path, 'Expected Boolean, got ${value.runtimeType}'));
     } else if (expectedType is Schema) {
       if (value is Node) {
-        final nestedResult = validateNode(value, path: path);
-        errors.addAll(nestedResult.errors);
+        if (!value.schema.inheritsFrom(expectedType)) {
+          errors.add(ValidationError(path, 'Node schema ${value.schema.name} is not a valid subtype of ${expectedType.name}'));
+        } else {
+          final nestedResult = validateNode(value, path: path);
+          errors.addAll(nestedResult.errors);
+        }
       } else {
-        errors.add(ValidationError(path, 'Expected Node of type ${expectedType.name}, got ${value.runtimeType}'));
+        errors.add(ValidationError(path, 'Expected Node of type or subtype of ${expectedType.name}, got ${value.runtimeType}'));
       }
     } else if (expectedType is ListType) {
       if (value is List) {
@@ -81,7 +91,7 @@ class SchemaValidator {
           _validateValueType('$path[$i]', expectedType.elementType, value[i], errors);
         }
       } else {
-        errors.add(ValidationError(path, 'Expected List, got ${value.runtimeType}'));
+        _validateValueType(path, expectedType.elementType, value, errors);
       }
     }
   }

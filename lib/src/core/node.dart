@@ -33,15 +33,30 @@ class Node {
       result['@context'] = schema.uri;
     }
     properties.forEach((key, val) {
-      if (val is Node) {
-        result[key] = val.toJson();
-      } else if (val is List) {
-        result[key] = val.map((e) => e is Node ? e.toJson() : e).toList();
-      } else {
-        result[key] = val;
-      }
+      result[key] = _serializeValue(val);
     });
     return result;
+  }
+
+  dynamic _serializeValue(dynamic val) {
+    if (val is Node) {
+      return val.toJson();
+    }
+    if (val is List) {
+      return val.map((e) => _serializeValue(e)).toList();
+    }
+    if (val != null && (val.runtimeType.toString().contains('LocalizedText') || keyIsLocalized(val))) {
+      return val.toJson();
+    }
+    return val;
+  }
+
+  bool keyIsLocalized(dynamic val) {
+    try {
+      return (val as dynamic).toJson is Function && (val as dynamic).language != null;
+    } catch (_) {
+      return false;
+    }
   }
 
   @override
