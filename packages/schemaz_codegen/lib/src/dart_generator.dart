@@ -57,8 +57,8 @@ class DartGenerator {
     buffer.writeln();
 
     // Generate toJsonLd()
-    buffer.writeln('  Map<String, dynamic> toJsonLd() => {');
-    buffer.writeln('    "@context": "https://schema.org",');
+    buffer.writeln('  Map<String, dynamic> toJsonLd({Object? context}) => {');
+    buffer.writeln('    "@context": context ?? "https://schema.org",');
     buffer.writeln('    "@type": "${decl.name}",');
     for (final prop in decl.properties) {
       final isLocal = prop.ranges.firstOrNull == 'LocalizedString';

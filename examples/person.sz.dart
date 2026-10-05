@@ -17,8 +17,8 @@ class Person {
     "email": email,
   };
 
-  Map<String, dynamic> toJsonLd() => {
-    "@context": "https://schema.org",
+  Map<String, dynamic> toJsonLd({Object? context}) => {
+    "@context": context ?? "https://schema.org",
     "@type": "Person",
     "name": name,
     "email": email,

@@ -17,8 +17,8 @@ class Product {
     "price": price,
   };
 
-  Map<String, dynamic> toJsonLd() => {
-    "@context": "https://schema.org",
+  Map<String, dynamic> toJsonLd({Object? context}) => {
+    "@context": context ?? "https://schema.org",
     "@type": "Product",
     "name": name,
     "price": price,

@@ -28,7 +28,7 @@ void main() {
       final code = DartGenerator.generate([decl]);
 
       expect(code, contains('Map<String, dynamic> toJson()'));
-      expect(code, contains('Map<String, dynamic> toJsonLd()'));
+      expect(code, contains('Map<String, dynamic> toJsonLd({Object? context})'));
       expect(code, contains('factory Product.fromJson'));
       expect(code, contains('"@type": "Product"'));
     });

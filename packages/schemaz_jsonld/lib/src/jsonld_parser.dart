@@ -1,18 +1,21 @@
 import 'dart:convert';
 import 'package:schemaz_core/schemaz_core.dart';
+import 'jsonld_context.dart';
 
 class JsonLdParser {
   /// Parses standard Schema.org JSON-LD graph into a list of [SchemaType] definitions.
   static List<SchemaType> parseGraph(String jsonLdString) {
     final Map<String, dynamic> data = jsonDecode(jsonLdString);
-    final List<dynamic> graph = data['@graph'] ?? [];
+    final context = JsonLdContext.fromJson(data['@context']);
+    final List<dynamic> graph = data['@graph'] ?? [data];
 
     final types = <String, SchemaType>{};
     final properties = <String, PropertyDefinition>{};
 
     for (final item in graph) {
       if (item is! Map<String, dynamic>) continue;
-      final id = item['@id'] as String? ?? '';
+      final rawId = item['@id'] as String? ?? '';
+      final id = context.expandTerm(rawId);
       final type = item['@type'];
 
       if (type == 'rdfs:Class' || type == 'schema:Type') {
@@ -24,10 +27,12 @@ class JsonLdParser {
         if (item['rdfs:subClassOf'] != null) {
           final subClass = item['rdfs:subClassOf'];
           if (subClass is Map) {
-            supertypes.add(subClass['@id'] ?? '');
+            supertypes.add(context.expandTerm(subClass['@id'] ?? ''));
           } else if (subClass is List) {
             for (final sc in subClass) {
-              if (sc is Map && sc['@id'] != null) supertypes.add(sc['@id']);
+              if (sc is Map && sc['@id'] != null) {
+                supertypes.add(context.expandTerm(sc['@id']));
+              }
             }
           }
         }
@@ -45,10 +50,10 @@ class JsonLdParser {
         List<String> domains = [];
         if (item['schema:domainIncludes'] != null) {
           final d = item['schema:domainIncludes'];
-          if (d is Map && d['@id'] != null) domains.add(d['@id']);
+          if (d is Map && d['@id'] != null) domains.add(context.expandTerm(d['@id']));
           if (d is List) {
             for (final dom in d) {
-              if (dom is Map && dom['@id'] != null) domains.add(dom['@id']);
+              if (dom is Map && dom['@id'] != null) domains.add(context.expandTerm(dom['@id']));
             }
           }
         }
@@ -56,17 +61,17 @@ class JsonLdParser {
         List<String> ranges = [];
         if (item['schema:rangeIncludes'] != null) {
           final r = item['schema:rangeIncludes'];
-          if (r is Map && r['@id'] != null) ranges.add(r['@id']);
+          if (r is Map && r['@id'] != null) ranges.add(context.expandTerm(r['@id']));
           if (r is List) {
             for (final ran in r) {
-              if (ran is Map && ran['@id'] != null) ranges.add(ran['@id']);
+              if (ran is Map && ran['@id'] != null) ranges.add(context.expandTerm(ran['@id']));
             }
           }
         }
 
         String? inverseOf;
         if (item['schema:inverseOf'] is Map) {
-          inverseOf = item['schema:inverseOf']['@id'];
+          inverseOf = context.expandTerm(item['schema:inverseOf']['@id']);
         }
 
         properties[id] = PropertyDefinition(
