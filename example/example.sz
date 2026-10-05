@@ -1,0 +1,18 @@
+schema Person {
+    name: Text
+    age: Integer
+    email: Text
+}
+
+person Person {
+    name: "Manish Gautam"
+    age: 30
+    email: "manish@example.com"
+}
+
+function introduce(p: Person) -> Text {
+    return "Hi, my name is " + p.name + " and I am " + p.age.toString() + " years old."
+}
+
+let intro = introduce(person)
+print(intro)
