@@ -12,6 +12,7 @@ enum TokenType {
   kwFalse,
   kwNull,
   kwDart,
+  kwAs,
 
   // Literals & Identifiers
   identifier,
@@ -78,6 +79,7 @@ class Lexer {
     'false': TokenType.kwFalse,
     'null': TokenType.kwNull,
     'dart': TokenType.kwDart,
+    'as': TokenType.kwAs,
   };
 
   List<Token> tokenize() {

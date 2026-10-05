@@ -127,6 +127,17 @@ class SchemazInterpreter {
       throw ReturnValue(val);
     }
 
+    if (node is TypeCastNode) {
+      final val = evaluate(node.expression, env);
+      final targetSchema = registry.lookupSchema(node.targetTypeName);
+      if (val is Node && targetSchema != null) {
+        if (!val.schema.inheritsFrom(targetSchema)) {
+          throw FormatException('TypeCastException: Cannot cast ${val.schema.name} to ${targetSchema.name}');
+        }
+      }
+      return val;
+    }
+
     if (node is LiteralNode) {
       return node.value;
     }

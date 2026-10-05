@@ -66,7 +66,7 @@ class Parser {
       _consume(TokenType.rightBrace, 'Expected "}" after else block.');
     }
 
-    return FunctionDeclNode('', [], null, thenBody); // placeholder or expression wrapper
+    return IfNode(condition, thenBody, elseBody: elseBody);
   }
 
   ASTNode _parseImport() {
@@ -157,7 +157,16 @@ class Parser {
   }
 
   ExpressionNode _parseExpression() {
-    return _parseEquality();
+    return _parseCast();
+  }
+
+  ExpressionNode _parseCast() {
+    var expr = _parseEquality();
+    while (_match([TokenType.kwAs])) {
+      final targetType = _consume(TokenType.identifier, 'Expected type identifier after "as".').text;
+      expr = TypeCastNode(expr, targetType);
+    }
+    return expr;
   }
 
   ExpressionNode _parseEquality() {
@@ -251,6 +260,14 @@ class Parser {
     if (_match([TokenType.kwTrue])) return LiteralNode(true);
     if (_match([TokenType.kwFalse])) return LiteralNode(false);
     if (_match([TokenType.kwNull])) return LiteralNode(null);
+
+    if (_match([TokenType.minus])) {
+      final primary = _parsePrimary();
+      if (primary is LiteralNode && primary.value is num) {
+        return LiteralNode(-primary.value);
+      }
+      return BinaryOpNode(LiteralNode(0), '-', primary);
+    }
 
     if (_match([TokenType.stringLiteral, TokenType.numberLiteral])) {
       return LiteralNode(_previous().value);

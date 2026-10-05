@@ -46,6 +46,13 @@ class FunctionDeclNode extends ASTNode {
   FunctionDeclNode(this.name, this.parameters, this.returnTypeName, this.body);
 }
 
+class IfNode extends ASTNode {
+  final ExpressionNode condition;
+  final List<ASTNode> thenBody;
+  final List<ASTNode>? elseBody;
+  IfNode(this.condition, this.thenBody, {this.elseBody});
+}
+
 class LetDeclNode extends ASTNode {
   final String name;
   final ExpressionNode initializer;
@@ -58,6 +65,12 @@ class ReturnNode extends ASTNode {
 }
 
 abstract class ExpressionNode extends ASTNode {}
+
+class TypeCastNode extends ExpressionNode {
+  final ExpressionNode expression;
+  final String targetTypeName;
+  TypeCastNode(this.expression, this.targetTypeName);
+}
 
 class LiteralNode extends ExpressionNode {
   final dynamic value;
