@@ -1,0 +1,24 @@
+// Example demonstrating Geo subtypes and Multi-Language Localized Text in Schemaz
+
+center GeoCoordinates {
+    latitude: 37.7749
+    longitude: -122.4194
+}
+
+parkZone GeoCircle {
+    geoMidpoint: center
+    geoRadius: 1500.0
+}
+
+centralPark Place {
+    name: ["Central Park"@en, "सेंट्रल पार्क"@hi, "സെൻട്രൽ പാർക്ക്"@ml]
+    address: "New York, NY"
+    geo: parkZone
+}
+
+function printPlaceDetails(p: Place) {
+    print("Place Address: " + p.address)
+    print("Coordinates Radius: " + p.geo.geoRadius.toString())
+}
+
+printPlaceDetails(centralPark)
