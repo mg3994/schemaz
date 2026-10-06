@@ -1,0 +1,23 @@
+name: schemaz_cli
+description: CLI tool for Schemaz
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  schemaz_core:
+    path: ../schemaz_core
+  schemaz_model:
+    path: ../schemaz_model
+  schemaz_lexer:
+    path: ../schemaz_lexer
+  schemaz_parser:
+    path: ../schemaz_parser
+  schemaz_codegen:
+    path: ../schemaz_codegen
+  schemaz_runtime:
+    path: ../schemaz_runtime
+
+dev_dependencies:
+  test: ^1.24.0

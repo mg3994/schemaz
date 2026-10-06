@@ -1,0 +1,10 @@
+name: schemaz_examples
+description: Example application demonstrating Schemaz and Dart integration
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  schemaz_core:
+    path: ../packages/schemaz_core

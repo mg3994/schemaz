@@ -1,0 +1,11 @@
+import 'schema:org';
+
+@schema('https://schema.org/Person')
+schema Person {
+    name: String;
+    email: String?;
+}
+
+fn greet(Person person) -> String {
+    return "Hello " + person.name;
+}
