@@ -27,6 +27,45 @@ void main() {
       expect(interpreter.globalEnv.get('lang'), equals("en"));
     });
 
+    test('Decodes multi-language property list and base URL context in JSON-LD', () {
+      final registry = SchemaRegistry();
+      StandardVocabularies.registerStandardSchemaOrgTypes(registry);
+
+      final jsonLd = {
+        "@context": {
+          "name": "http://schema.org/name",
+          "@base": "https://example.com/api/"
+        },
+        "@id": "https://example.com/person/1",
+        "@type": "Person",
+        "name": [
+          {"@value": "Manish", "@language": "en"},
+          {"@value": "मनीष", "@language": "hi"},
+          {"@value": "മനീഷ്", "@language": "ml"}
+        ]
+      };
+
+      final codec = JsonLdCodec(registry);
+      final node = codec.decodeNode(jsonLd);
+
+      expect(node.schema.name, equals('Person'));
+      expect(node.id, equals('https://example.com/person/1'));
+      expect(node.baseUrl, equals('https://example.com/api/'));
+
+      final names = node.get('name') as List;
+      expect(names.length, equals(3));
+      expect(names[0], equals(LocalizedText('Manish', 'en')));
+      expect(names[1], equals(LocalizedText('मनीष', 'hi')));
+      expect(names[2], equals(LocalizedText('മനീഷ്', 'ml')));
+
+      final encoded = codec.encodeNode(node);
+      expect(encoded['name'], isA<List>());
+      final encodedNames = encoded['name'] as List;
+      expect(encodedNames[0], equals({'@value': 'Manish', '@language': 'en'}));
+      expect(encodedNames[1], equals({'@value': 'मनीष', '@language': 'hi'}));
+      expect(encodedNames[2], equals({'@value': 'മനീഷ്', '@language': 'ml'}));
+    });
+
     test('Validates polymorphic subtype assignment without requiring manual casting', () {
       final registry = SchemaRegistry();
       StandardVocabularies.registerStandardSchemaOrgTypes(registry);

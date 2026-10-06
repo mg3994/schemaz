@@ -23,9 +23,18 @@ class JsonLdCodec {
     }
 
     final schema = registry.lookupSchema(typeName) ??
-        Schema(name: typeName, uri: json['@context'] as String?);
+        Schema(name: typeName, uri: json['@context'] is String ? json['@context'] as String : null);
 
     final id = json['@id'] as String?;
+    String? baseUrl;
+
+    if (json.containsKey('@context')) {
+      final context = json['@context'];
+      if (context is Map && context.containsKey('@base')) {
+        baseUrl = context['@base'].toString();
+      }
+    }
+
     final props = <String, dynamic>{};
 
     json.forEach((key, value) {
@@ -55,6 +64,6 @@ class JsonLdCodec {
       }
     });
 
-    return Node(id: id, schema: schema, properties: props);
+    return Node(id: id, baseUrl: baseUrl, schema: schema, properties: props);
   }
 }
