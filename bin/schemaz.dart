@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:args/args.dart';
 import 'package:schemaz/schemaz.dart';
@@ -7,7 +8,8 @@ void main(List<String> arguments) async {
     ..addCommand('run')
     ..addCommand('inspect')
     ..addCommand('import')
-    ..addCommand('compile');
+    ..addCommand('compile')
+    ..addCommand('diff');
 
   final results = parser.parse(arguments);
 
@@ -110,6 +112,24 @@ void main(List<String> arguments) async {
       }
       break;
 
+    case 'diff':
+      if (command.rest.length < 2) {
+        print('Error: Missing two JSON-LD files for "diff" command.');
+        exit(1);
+      }
+      final file1 = File(command.rest[0]);
+      final file2 = File(command.rest[1]);
+      if (!file1.existsSync() || !file2.existsSync()) {
+        print('Error: One or both files not found.');
+        exit(1);
+      }
+      final codec = JsonLdCodec(registry);
+      final node1 = codec.decodeNode(jsonDecode(file1.readAsStringSync()));
+      final node2 = codec.decodeNode(jsonDecode(file2.readAsStringSync()));
+      final diffResult = SchemaDiffEngine.diffNodes(node1, node2);
+      print(diffResult);
+      break;
+
     default:
       printUsage(parser);
   }
@@ -122,9 +142,10 @@ Schemaz CLI - Data-Driven Programming Language
 Usage: schemaz <command> [arguments]
 
 Commands:
-  run <file.sz>          Execute a Schemaz program file
-  inspect <SchemaName>   Inspect properties and parents of a Schema
-  import <source.jsonld> Import Schema.org JSON-LD vocabulary (URL or local path)
-  compile <file.sz>      Compile Schemaz file to Dart classes (for Dart interop)
+  run <file.sz>              Execute a Schemaz program file
+  inspect <SchemaName>       Inspect properties and parents of a Schema
+  import <source.jsonld>     Import Schema.org JSON-LD vocabulary (URL or local path)
+  compile <file.sz>          Compile Schemaz file to Dart classes (for Dart interop)
+  diff <file1.json> <file2>  Compute structural or property diffs between two nodes
 ''');
 }

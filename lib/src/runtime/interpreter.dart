@@ -1,3 +1,4 @@
+import '../core/graph.dart';
 import '../core/node.dart';
 import '../core/registry.dart';
 import '../core/schema.dart';
@@ -56,6 +57,13 @@ class SchemazInterpreter {
       final msg = args.map((a) => a.toString()).join(' ');
       print(msg);
       return msg;
+    });
+
+    globalEnv.define('diffNodes', (List<dynamic> args) {
+      if (args.length >= 2 && args[0] is Node && args[1] is Node) {
+        return SchemaDiffEngine.diffNodes(args[0] as Node, args[1] as Node);
+      }
+      throw FormatException('diffNodes requires two Node arguments.');
     });
   }
 
@@ -220,6 +228,11 @@ class SchemazInterpreter {
       final target = evaluate(node.target, env);
       final args = node.arguments.map((a) => evaluate(a, env)).toList();
       if (node.methodName == 'toString') return target.toString();
+      if (target is Node) {
+        if (node.methodName == 'diff' && args.isNotEmpty && args.first is Node) {
+          return SchemaDiffEngine.diffNodes(target, args.first as Node);
+        }
+      }
       if (target is List) {
         if (node.methodName == 'length') return target.length;
         if (node.methodName == 'contains' && args.isNotEmpty) return target.contains(args.first);

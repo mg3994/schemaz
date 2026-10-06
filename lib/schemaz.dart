@@ -2,6 +2,7 @@ export 'src/core/type.dart';
 export 'src/core/schema.dart';
 export 'src/core/node.dart';
 export 'src/core/registry.dart';
+export 'src/core/graph.dart';
 export 'src/schema_org/importer.dart';
 export 'src/schema_org/json_ld_codec.dart';
 export 'src/schema_org/validator.dart';
