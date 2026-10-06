@@ -30,6 +30,8 @@ class Parser {
 
   Declaration? _parseDeclaration() {
     String? schemaUri;
+    Token? startToken = _peek();
+
     if (_match([TokenType.at])) {
       if (_check(TokenType.identifier) || _check(TokenType.schemaKw)) {
         _advance();
@@ -47,16 +49,16 @@ class Parser {
     }
 
     if (_match([TokenType.schemaKw])) {
-      return _parseSchemaDeclaration(schemaUri);
+      return _parseSchemaDeclaration(schemaUri, startToken);
     } else if (_match([TokenType.fnKw])) {
-      return _parseFunctionDeclaration();
+      return _parseFunctionDeclaration(startToken);
     }
 
     _advance(); // Skip unknown/unsupported token
     return null;
   }
 
-  SchemaDeclaration _parseSchemaDeclaration(String? schemaUri) {
+  SchemaDeclaration _parseSchemaDeclaration(String? schemaUri, Token startToken) {
     final nameToken =
         _consume(TokenType.identifier, 'Expected schema name identifier');
     String? supertype;
@@ -100,10 +102,11 @@ class Parser {
       schemaUri: schemaUri,
       supertype: supertype,
       properties: properties,
+      location: SourceLocation(line: startToken.line, column: startToken.column),
     );
   }
 
-  FunctionDeclaration _parseFunctionDeclaration() {
+  FunctionDeclaration _parseFunctionDeclaration(Token startToken) {
     final nameToken =
         _consume(TokenType.identifier, 'Expected function name');
     _consume(TokenType.openParen, 'Expected "(" after function name');
@@ -137,6 +140,7 @@ class Parser {
       name: nameToken.lexeme,
       returnType: returnType,
       parameters: parameters,
+      location: SourceLocation(line: startToken.line, column: startToken.column),
     );
   }
 
@@ -176,7 +180,7 @@ class Parser {
 
   Token _consume(TokenType type, String message) {
     if (_check(type)) return _advance();
-    throw FormatException('$message at ${_peek().lexeme}');
+    throw FormatException('$message at ${_peek().lexeme} (${_peek().line}:${_peek().column})');
   }
 
   Token _advance() {

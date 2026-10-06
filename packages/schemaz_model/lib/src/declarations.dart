@@ -1,8 +1,11 @@
 import 'package:schemaz_core/schemaz_core.dart';
+import 'source_location.dart';
 
 abstract class Declaration {
   final String name;
-  const Declaration(this.name);
+  final SourceLocation? location;
+
+  const Declaration(this.name, {this.location});
 }
 
 class SchemaDeclaration extends Declaration {
@@ -15,7 +18,8 @@ class SchemaDeclaration extends Declaration {
     this.schemaUri,
     this.supertype,
     this.properties = const [],
-  }) : super(name);
+    SourceLocation? location,
+  }) : super(name, location: location);
 }
 
 class FunctionDeclaration extends Declaration {
@@ -26,5 +30,6 @@ class FunctionDeclaration extends Declaration {
     required String name,
     this.returnType,
     this.parameters = const {},
-  }) : super(name);
+    SourceLocation? location,
+  }) : super(name, location: location);
 }
